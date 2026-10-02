@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'me.mrgooto'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' } // библиотека живёт только здесь (Maven Central её не хостит)
+}
+
+dependencies {
+    implementation 'com.github.MinnDevelopment:java-discord-rpc:2.0.2'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+application {
+    mainClass = 'me.mrgooto.rpc.Main'
+}

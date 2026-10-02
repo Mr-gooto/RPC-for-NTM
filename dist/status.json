@@ -1,0 +1,9 @@
+{
+  "state": "world",
+  "worldName": "Biohazard Survival",
+  "hp": 14,
+  "multiplayer": false,
+  "serverName": "",
+  "ntmServer": false,
+  "dimension": "duna"
+}
