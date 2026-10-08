@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 public class NtmRpc {
 
     public static final String MODID = "ntmrpc";
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.8";
 
     /** Куда пишет состояние; RPC-приложение читает этот же файл. */
     private static final File OUT_DIR = new File(System.getProperty("user.home"), ".mydiscordrpc");
@@ -73,6 +73,7 @@ public class NtmRpc {
         String state;
         String worldName = "";
         int hp = 20;
+        int maxHp = 20;         // в NTM максимум здоровья бывает больше 20
         boolean multiplayer = false;
         boolean lan = false;
         float rad = 0f;         // накопленное облучение игрока (NTM)
@@ -84,7 +85,8 @@ public class NtmRpc {
         // В мире — играем, ESC-пауза не меняет статус
         if (inWorld) {
             state = "world";
-            hp = (int) Math.min(20.0F, Math.max(0.0F, mc.thePlayer.getHealth()));
+            hp = (int) Math.max(0.0F, mc.thePlayer.getHealth());
+            maxHp = (int) Math.max(1.0F, mc.thePlayer.getMaxHealth());
 
             if (mc.isIntegratedServerRunning()) {
                 // одиночная игра / открытый в LAN мир
@@ -120,6 +122,7 @@ public class NtmRpc {
         return "{\"state\":\"" + state + "\""
                 + ",\"worldName\":\"" + esc(worldName) + "\""
                 + ",\"hp\":" + hp
+                + ",\"maxHp\":" + maxHp
                 + ",\"multiplayer\":" + multiplayer
                 + ",\"lan\":" + lan
                 + ",\"serverName\":\"" + esc(serverName) + "\""
@@ -227,14 +230,19 @@ public class NtmRpc {
         return s == null ? "" : s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
+    /** Атомарная запись: temp + rename, чтобы читатель (RPC-приложение) не поймал обрезанный JSON. */
     private void write(String json) {
         try {
             if (!OUT_DIR.exists()) OUT_DIR.mkdirs();
-            Writer w = new OutputStreamWriter(new FileOutputStream(OUT_FILE), StandardCharsets.UTF_8);
+            File tmp = new File(OUT_DIR, "status.json.tmp");
+            Writer w = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8);
             w.write(json);
             w.close();
+            if (OUT_FILE.exists() && !OUT_FILE.delete()) return;
+            if (!tmp.renameTo(OUT_FILE))
+                throw new IllegalStateException("rename failed");
         } catch (Exception e) {
-            System.err.println("[NTM-RPC] Не удалось записать status.json: " + e.getMessage());
+            System.err.println("[NTM-RPC] Failed to write status.json: " + e.getMessage());
         }
     }
 }

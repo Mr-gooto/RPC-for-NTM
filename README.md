@@ -1,53 +1,102 @@
-# Discord RPC - Nuclear Tech Biohazard
+# Discord RPC for NTM
 
-A custom Discord Rich Presence for the **Nuclear Tech Biohazard**.
+A Discord Rich Presence for modpacks running **HBM's Nuclear Tech Mod** (Minecraft 1.7.10 Forge)
+— and any other 1.7.10 pack. Two parts:
+
+1. **Bridge mod** (`NtmRpcBridge`) — writes the game state to `~/.mydiscordrpc/status.json`
+   every second.
+2. **RPC app** (`MyDiscordRPC.jar`) — reads that file and shows the status in Discord over
+   local IPC. Runs in the background; Minecraft can be closed.
+
+> [!NOTE]
+> The profile title («Playing …») is the Discord application name. By default the author's
+> application is used; you can create your own at [discord.com/developers](https://discord.com/developers/applications)
+> and put its ID into `config.json`.
 
 ## What it shows
 
-- **Top line** (details): `in the main menu` / `in settings` / `Playing in world "name" — 7 ❤`
-- **Bottom line** (state): `Singleplayer` or `On server: <name>`
-- **Large image**: the modpack logo. If you are in an NTM Space dimension or on an NTM server, it shows a planet image ( `earth`, `mun`, `minmus`, `duna`, `ike`, `moho`, `dres`, `eve`, `laythe`, `tekto` )
-  with the planet name on hover.
+| Situation | Status |
+|---|---|
+| Pack loading | `Loading …` |
+| Main menu (incl. mod menus) | `In main menu` |
+| Settings | `In settings` |
+| In a singleplayer world | `Playing in "…" — 14/20 HP` + `Singleplayer world` |
+| World open to LAN | `…` + `Open to LAN` |
+| On a server | `Playing on mc.example.com — …` + `Multiplayer` |
 
-## Structure
+Additionally in-world: a **Geiger counter** (accumulated radiation from NTM, shown only if > 0:
+`0.35 RAD`) and **chunk pollution** (`Pollution: 27%`).
 
-```
-dist/
-  MyDiscordRPC.jar      — ready-to-use build (all dependencies bundled)
-  lib/libdiscord-rpc.so — Discord native library
-  status.json           — game state (read by the program)
-  run.sh                — launcher: ./run.sh
-src/main/java/.../Main.java — source code
-```
+**Large image** — the modpack logo; in NTM Space dimensions it becomes the planet (Earth, Mun,
+Minmus, Duna, Ike, Moho, Dres, Eve, Laythe, Tekto, Orbit). Dimensions are resolved through the
+NTM celestial-body registry, so every planet of the mod works automatically.
 
-## Setup (one time)
+The session timer resets when you quit the game (including after a crash — the app treats the
+game as closed if the status file goes silent for 60 seconds).
 
-1. https://discord.com/developers/applications → **New Application**, name: `random name`
-   (the application name is what appears = «Playing Nuclear Tech Biohazard» on your profile).
-2. Copy the **Application ID** → and paste it into `Main.java` int place of `YOUR_APPLICATION_ID` then rebuild
-   (see "Building from source" below).
-3. open the **Art Assets** → tab and upload your images:
-   - `main` — the large modpack logo,
-   - `icon` — the small icon
-  
+## Installation
+
+1. Copy `NtmRpcBridge-x.x.jar` into `mods/` (client-side only, server not needed).
+2. Run `run.sh` (Linux/macOS) or `run.bat` (Windows) from `dist` / `dist-win`.
+   Requires Java 8+; Discord/Vesktop must be running.
+3. Preferably set the app to autostart (on Linux — a systemd user unit).
+
+## Configuration (config.json, next to MyDiscordRPC.jar)
+
 ```json
 {
-  "state": "world",            // "menu" | "settings" | "world"
-  "worldName": "My World",      // world name
-  "hp": 14,                    // hp (20 = 10 hearts)
-  "multiplayer": false,        // true = on a server
-  "serverName": "mc.example.com",
-  "ntmServer": false,          // true = server with NTM (logo becomes a planet)
-  "dimension": ""              // planet key from the list above, or "" = regular world
+  "app_id": "",
+  "lang": "ru",
+  "pack_name": "Nuclear Tech Biohazard"
 }
 ```
 
+- `app_id` — your Discord application ID (as a string!). Empty = the author's app.
+- `lang` — `ru` or `en` (status strings language).
+- `pack_name` — modpack name shown in the status.
+
+Images are uploaded in Discord Developer Portal → Rich Presence → Art Assets:
+`main` (large logo), `mini_logo` (small), and one per planet with the key
+`earth`, `mun`, `moho`, `duna`, `ike`, `eve`, `laythe`, `tekto`, `minmus`, `dres`, `orbit`.
+
+## status.json format (for integrations)
+
+Any program can write this file — the app will display it:
+
+```json
+{
+  "state": "world",
+  "worldName": "My World",
+  "hp": 14, "maxHp": 20,
+  "multiplayer": false,
+  "lan": false,
+  "serverName": "",
+  "ntmServer": false,
+  "dimension": "moho",
+  "rad": 0.35,
+  "pollution": 0.27
+}
+```
+
+`state`: `menu | settings | world | loading | off`. `"state": "off"` hides the activity
+completely. Write the file atomically (temp file + rename).
+
 ## Building from source
 
-Requires JDK 8+ and Gradle:
+- **App**: dependencies `com.github.MinnDevelopment:java-discord-rpc:2.0.2` (JitPack), `gson`,
+  `jna`; `gradle jar` + the `discord-rpc` native library from
+  [discord/discord-rpc v3.4.0](https://github.com/discord/discord-rpc/releases/tag/v3.4.0)
+  (`libdiscord-rpc.so` / `discord-rpc.dll` next to the jar, run with `-Djna.library.path=lib`).
+- **Mod**: ForgeGradle 1.2 (the `com.anatawa12.forge` fork) + Gradle 4.10.3, JDK 8:
+  `gradle build`.
 
-```bash
-gradle installDist
-```
-Or manually: javac -cp discord-rpc.jar:gson.jar:jna.jar Main.java, then package the classes into a jar.
-Note: the library com.github.MinnDevelopment:java-discord-rpc is only available via JitPack (it is not hosted on Maven Central).
+Tested with NTM `1.0.27_X5778_H261`. NTM APIs are accessed via reflection: without NTM the mod
+still works, just without the Geiger counter and planet images.
+
+## License
+
+GPL-3.0. Uses [java-discord-rpc](https://github.com/MinnDevelopment/java-discord-rpc) (Apache-2.0)
+and the [discord-rpc SDK](https://github.com/discord/discord-rpc) (MIT).
+
+---
+~ by gooto ~

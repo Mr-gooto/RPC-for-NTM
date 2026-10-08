@@ -14,7 +14,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.7"
+version = "1.9"
 group= "me.mrgooto.ntmrpc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "NtmRpcBridge"
 
