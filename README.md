@@ -1,6 +1,6 @@
-# My Discord RPC — Nuclear Tech Biohazard
+# Discord RPC - Nuclear Tech Biohazard
 
-Свой Discord Rich Presence на Java для сборки **Nuclear Tech Biohazard**.
+Мой кастомный Discrod RPC для сборки **Nuclear Tech Biohazard**.
 
 ## Что показывает
 
@@ -26,7 +26,7 @@ src/main/java/.../Main.java — исходник
 
 1. https://discord.com/developers/applications → **New Application**, имя: `Nuclear Tech Biohazard`
    (имя приложения = «Играет в Nuclear Tech Biohazard» в профиле).
-2. Скопируй **Application ID** → вставь в `Main.java` вместо `YOUR_APPLICATION_ID` и пересобери
+2. Скопируй **Application ID** → вставить в `Main.java` вместо `YOUR_APPLICATION_ID` и пересобери
    (см. «Сборка» ниже).
 3. Вкладка **Artifacts** → залей картинки:
    - `main` — большой логотип сборки,
@@ -34,10 +34,6 @@ src/main/java/.../Main.java — исходник
    - по одной картинке на планету с ключами ровно `earth`, `mun`, `minmus`, `duna`, `ike`,
      `moho`, `dres`, `eve`, `laythe`, `tekto`.
 4. Запусти Discord (клиент, не браузер) и `./run.sh`.
-
-## status.json
-
-Программа раз в 15 секунд перечитывает `status.json`:
 
 ```json
 {
@@ -50,9 +46,6 @@ src/main/java/.../Main.java — исходник
   "dimension": ""              // ключ планеты из списка выше, или "" = обычный мир
 }
 ```
-
-Пока его можно править руками для теста. Чтобы данные шли сами из игры, нужен маленький мод,
-который пишет в этот файл — скажи, и напишем (Fabric/Forge).
 
 ## Сборка из исходника
 
