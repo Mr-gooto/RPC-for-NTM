@@ -126,7 +126,8 @@ public class Main {
                     prevState = s.state;
 
                     DiscordRichPresence p = buildPresence(s);
-                    String signature = presenceSignature(p);
+                    String signature = "off".equals(s.state)
+                            ? "OFF" : presenceSignature(p); // off не должен совпасть ни с одним статусом
                     long now = System.currentTimeMillis();
                     // Шлём только когда видимый статус изменился, не чаще раза в 2 сек
                     if (!signature.equals(lastShown) && now - lastPush >= 2_000) {
