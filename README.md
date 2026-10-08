@@ -1,60 +1,53 @@
 # Discord RPC - Nuclear Tech Biohazard
 
-Мой кастомный Discrod RPC для сборки **Nuclear Tech Biohazard**.
+A custom Discord Rich Presence for the **Nuclear Tech Biohazard**.
 
-## Что показывает
+## What it shows
 
-- **Верхняя строка** (details): `В главном меню` / `В настройках` / `Играет в мире "название" — 7 ❤`
-- **Нижняя строка** (state): `Локальный мир` или `На сервере: <имя>`
-- **Большая картинка**: логотип сборки; если играешь в измерении NTM Space или на NTM-сервере —
-  картинка планеты (`earth`, `mun`, `minmus`, `duna`, `ike`, `moho`, `dres`, `eve`, `laythe`, `tekto`),
-  при наведении — название планеты.
-- Таймер сессии рисует сам Discord.
+- **Top line** (details): `in the main menu` / `in settings` / `Playing in world "name" — 7 ❤`
+- **Bottom line** (state): `Singleplayer` or `On server: <name>`
+- **Large image**: the modpack logo. If you are in an NTM Space dimension or on an NTM server, it shows a planet image ( `earth`, `mun`, `minmus`, `duna`, `ike`, `moho`, `dres`, `eve`, `laythe`, `tekto` )
+  with the planet name on hover.
 
-## Структура
+## Structure
 
 ```
 dist/
-  MyDiscordRPC.jar      — готовая сборка (все зависимости внутри)
-  lib/libdiscord-rpc.so — нативная библиотека Discord
-  status.json           — состояние игры (его читает программа)
-  run.sh                — запуск: ./run.sh
-src/main/java/.../Main.java — исходник
+  MyDiscordRPC.jar      — ready-to-use build (all dependencies bundled)
+  lib/libdiscord-rpc.so — Discord native library
+  status.json           — game state (read by the program)
+  run.sh                — launcher: ./run.sh
+src/main/java/.../Main.java — source code
 ```
 
-## Настройка (один раз)
+## Setup (one time)
 
-1. https://discord.com/developers/applications → **New Application**, имя: `Nuclear Tech Biohazard`
-   (имя приложения = «Играет в Nuclear Tech Biohazard» в профиле).
-2. Скопируй **Application ID** → вставить в `Main.java` вместо `YOUR_APPLICATION_ID` и пересобери
-   (см. «Сборка» ниже).
-3. Вкладка **Artifacts** → залей картинки:
-   - `main` — большой логотип сборки,
-   - `icon` — маленькая иконка,
-   - по одной картинке на планету с ключами ровно `earth`, `mun`, `minmus`, `duna`, `ike`,
-     `moho`, `dres`, `eve`, `laythe`, `tekto`.
-4. Запусти Discord (клиент, не браузер) и `./run.sh`.
-
+1. https://discord.com/developers/applications → **New Application**, name: `random name`
+   (the application name is what appears = «Playing Nuclear Tech Biohazard» on your profile).
+2. Copy the **Application ID** → and paste it into `Main.java` int place of `YOUR_APPLICATION_ID` then rebuild
+   (see "Building from source" below).
+3. open the **Art Assets** → tab and upload your images:
+   - `main` — the large modpack logo,
+   - `icon` — the small icon
+  
 ```json
 {
   "state": "world",            // "menu" | "settings" | "world"
-  "worldName": "Мой мир",      // название мира
-  "hp": 14,                    // здоровье (20 = 10 сердец)
-  "multiplayer": false,        // true = на сервере
+  "worldName": "My World",      // world name
+  "hp": 14,                    // hp (20 = 10 hearts)
+  "multiplayer": false,        // true = on a server
   "serverName": "mc.example.com",
-  "ntmServer": false,          // true = сервер с NTM (логотип = планета)
-  "dimension": ""              // ключ планеты из списка выше, или "" = обычный мир
+  "ntmServer": false,          // true = server with NTM (logo becomes a planet)
+  "dimension": ""              // planet key from the list above, or "" = regular world
 }
 ```
 
-## Сборка из исходника
+## Building from source
 
-Нужен JDK 8+ и Gradle:
+Requires JDK 8+ and Gradle:
 
 ```bash
 gradle installDist
 ```
-
-Либо руками: `javac -cp discord-rpc.jar:gson.jar:jna.jar Main.java` и склейка в jar.
-Примечание: библиотека `com.github.MinnDevelopment:java-discord-rpc` доступна только через
-JitPack (Maven Central её не хостит).
+Or manually: javac -cp discord-rpc.jar:gson.jar:jna.jar Main.java, then package the classes into a jar.
+Note: the library com.github.MinnDevelopment:java-discord-rpc is only available via JitPack (it is not hosted on Maven Central).
