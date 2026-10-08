@@ -14,9 +14,12 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.9"
+version = "2.0"
 group= "me.mrgooto.ntmrpc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "NtmRpcBridge"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"
@@ -24,6 +27,7 @@ minecraft {
 }
 
 dependencies {
+    implementation fileTree(dir: "libs", include: "*.jar")
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
