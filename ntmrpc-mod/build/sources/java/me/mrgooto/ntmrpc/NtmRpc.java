@@ -52,8 +52,9 @@ public class NtmRpc {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         Configuration cfg = new Configuration(event.getSuggestedConfigurationFile());
-        appId = cfg.get("rpc", "app_id", appId, "Discord application ID").getString();
-        lang = cfg.get("rpc", "lang", lang, "ru | en").getString();
+        appId = cfg.get("rpc", "app_id", appId, "Discord application ID").getString().trim();
+        if (appId.isEmpty()) appId = "1512155410449174588";
+        lang = cfg.get("rpc", "lang", lang, "ru | en").getString().trim().toLowerCase(Locale.ROOT);
         packName = cfg.get("rpc", "pack_name", packName, "Modpack name shown in Discord").getString();
         hideServerIp = cfg.get("rpc", "hide_server_ip", hideServerIp,
                 "Do not show the server address in the status").getBoolean();
@@ -77,6 +78,7 @@ public class NtmRpc {
         ru.put("single", "Одиночный мир");
         ru.put("lan", "Открыт для сети (LAN)");
         ru.put("multiplayer", "Сетевая игра");
+        ru.put("serverWord", "сервере");
         ru.put("pollution", "Загрязнение: %s%%");
         ru.put("playing", "Играет в %s");
         STRINGS.put("ru", ru);
@@ -90,6 +92,7 @@ public class NtmRpc {
         en.put("single", "Singleplayer world");
         en.put("lan", "Open to LAN");
         en.put("multiplayer", "Multiplayer");
+        en.put("serverWord", "a server");
         en.put("pollution", "Pollution: %s%%");
         en.put("playing", "Playing %s");
         STRINGS.put("en", en);
@@ -126,7 +129,7 @@ public class NtmRpc {
     private String prevState = "off";
     private String lastShown = "";
     private boolean firstTickDone = false;
-    private boolean ntmWarned = false; // ошибки рефлексии NTM логируем один раз
+    private final java.util.Set<String> ntmWarned = new java.util.HashSet<String>(); // по одному на API
 
     // Поле, а не локальная переменная: JNA держит callback'и по слабым ссылкам,
     // собранный GC'ем handlers приведёт к сбою при вызове из натива
@@ -166,6 +169,7 @@ public class NtmRpc {
         lib.Discord_Initialize(appId, handlers, false, null);
         rpcReady = true;
         System.out.println("[NTM-RPC] RPC инициализирован, ждём подключения к Discord...");
+        push(true); // «Загружает…» видно с самого старта, не дожидаясь первого тика
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override public void run() {
@@ -312,7 +316,7 @@ public class NtmRpc {
         } else if ("world".equals(s.state)) {
             String max = String.valueOf(s.maxHp);
             if (s.multiplayer) {
-                String srv = hideServerIp ? "" : s.serverName;
+                String srv = hideServerIp ? tr("serverWord") : s.serverName;
                 p.details = String.format(tr("onServer"),
                         srv == null || srv.isEmpty() ? "?" : truncate(srv), String.valueOf(s.hp), max);
             } else {
@@ -401,8 +405,7 @@ public class NtmRpc {
     }
 
     private void warnOnce(String api, Throwable t) {
-        if (ntmWarned) return;
-        ntmWarned = true;
+        if (!ntmWarned.add(api)) return;
         System.err.println("[NTM-RPC] NTM API '" + api + "' недоступен — гейгер/загрязнение не показываются:");
         System.err.println("  " + t);
     }
