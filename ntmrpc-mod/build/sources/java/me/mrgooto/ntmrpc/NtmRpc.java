@@ -47,6 +47,7 @@ public class NtmRpc {
     private String mainLogo = "main";
     private String smallLogo = "mini_logo";
     private boolean hideServerIp = false;
+    private boolean earthInSingleplayer = false;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -56,6 +57,8 @@ public class NtmRpc {
         packName = cfg.get("rpc", "pack_name", packName, "Modpack name shown in Discord").getString();
         hideServerIp = cfg.get("rpc", "hide_server_ip", hideServerIp,
                 "Do not show the server address in the status").getBoolean();
+        earthInSingleplayer = cfg.get("rpc", "earth_in_singleplayer", earthInSingleplayer,
+                "Show the Earth planet image in singleplayer overworld instead of the pack logo").getBoolean();
         mainLogo = cfg.get("images", "main_logo", mainLogo, "Large image key").getString();
         smallLogo = cfg.get("images", "small_logo", smallLogo, "Small image key").getString();
         if (cfg.hasChanged()) cfg.save();
@@ -285,7 +288,7 @@ public class NtmRpc {
             }
             s.dimension = dimensionKey(mc);
             // одиночка: обычный мир (и Незер/Энд) показывает логотип сборки, а не Earth
-            if (!s.multiplayer && "earth".equals(s.dimension)) s.dimension = "";
+            if (!s.multiplayer && !earthInSingleplayer && "earth".equals(s.dimension)) s.dimension = "";
             s.rad = playerRad(mc);
             s.pollution = totalPollution(mc);
         } else if (mc.currentScreen instanceof GuiOptions

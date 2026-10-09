@@ -3,7 +3,7 @@
 Standalone Discord Rich Presence for modpacks running **HBM's Nuclear Tech Mod**
 (Minecraft 1.7.10 Forge) — and any other 1.7.10 pack.
 
-**Everything is in one mod.** Download `NtmRpc-2.1.jar`, drop it into `mods/` — done.
+**Everything is in one mod.** Download `NtmRpc-2.2.jar`, drop it into `mods/` — done.
 No companion apps, no archives, nothing else to run.
 
 > [!NOTE]
@@ -33,7 +33,7 @@ The session timer resets when you quit the game; activity is removed when the ga
 
 ## Installation
 
-1. Download `NtmRpc-2.1.jar` from [Releases](https://github.com/Mr-gooto/RPC-for-NTM/releases).
+1. Download `NtmRpc-2.2.jar` from [Releases](https://github.com/Mr-gooto/RPC-for-NTM/releases).
 2. Put it into your instance's `mods/` folder (client-side only, server not needed).
 3. Launch the game with Discord (or Vesktop) running. That's it.
 
@@ -66,7 +66,7 @@ By default the author's images are used (his application ID is preset).
 - **Mod**: ForgeGradle 1.2 (the `com.anatawa12.forge` fork) + Gradle 4.10.3, JDK 8:
   `gradle build`. Compilation needs `java-discord-rpc` and `jna` jars in `libs/`
   (see `libs/` in the repo); the built jar is then repacked with JNA + natives bundled —
-  see the `NtmRpc-2.1.jar` in Releases for the final artifact.
+  see the `NtmRpc-2.2.jar` in Releases for the final artifact.
 - The legacy standalone app lives in `dist/` / `dist-win/` (see git history of v1.x for docs).
 
 Tested with NTM `1.0.27_X5778_H261`. NTM APIs are accessed via reflection: without NTM the mod
